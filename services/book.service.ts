@@ -37,7 +37,7 @@ export class BookService {
                 const limit = parseInt((pagesize as string)) || 10;
                 const skip = (pageNUmber - 1) * limit;
 
-                const result = await Book.find({ category: searchedBook }).skip(skip).limit(limit);
+                const result = await Book.find({ Title: searchedBook }).skip(skip).limit(limit);
                 if (author != null) {
                     const result = await Book.find({ Author: author });
                     return {
