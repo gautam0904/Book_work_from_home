@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
-import { JWT_SECRET } from "../constant/constat";
+
 
 declare global {
     namespace Express {
@@ -19,8 +19,8 @@ export const authmiddle = async (req: Request, res: Response, next: NextFunction
             message: "You have not token"
         });
     }
-    const accesstoken = (AccessToken as string).split(" ")[1];
-    jwt.verify(accesstoken, JWT_SECRET, (err, decoded) => {
+    const accesstoken : jwt.Secret = (AccessToken as string).split(" ")[1];
+    jwt.verify(accesstoken, (process.env.JWT_SECRET as jwt.Secret), (err, decoded) => {
         if (err) {
             return res.status(401).json({
                 message: "You are not authorized",

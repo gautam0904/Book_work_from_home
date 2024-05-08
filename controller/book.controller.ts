@@ -1,155 +1,121 @@
-import { msg, statuscode } from "../constant/return";
-import { bookInterface } from "../interface/model.interface";
-import { Book } from "../model/book.model"
+import {Request,Response} from "express";
+import { msg } from "../constant/return";
+import { BookService } from "../services/book.service";
+import { Book } from "../model/book.model";
+import { JwtPayload } from "jsonwebtoken";
+import { User } from "../model/user.model";
 
-export class BookService {
-    async getbook(page: null | string = null, pagesize: null | string = null, searchedBook: null | string = null, author: null | string = null, category: null | string = null) {
-        try {
-          
-            
-            if (page == null && pagesize == null) {
-                if (author != null) {
-                    const result = await Book.find({ Author: author });
-                    return {
-                        status: statuscode.success,
-                        content: {
-                            result
-                        }
-                    }
-                }
-                if (category != null) {
-                    const result = await Book.find({ Category: category });
-                    return {
-                        status: statuscode.success,
-                        content: {
-                            result
-                        }
-                    }
-                }
-                const result = await Book.find();
-                return {
-                    status: statuscode.success,
-                    content: {
-                        result
-                    }
-                }
-            }
-            else {
-                const pageNUmber = parseInt((page as string)) || 1;
-                const limit = parseInt((pagesize as string)) || 10;
-                const skip = (pageNUmber - 1) * limit;
-                const result = await Book.find({ Title: searchedBook }).skip(skip).limit(limit);
-                if (author != null) {
-                    const result = await Book.find({ Author: author }).skip(skip).limit(limit);
-                    return {
-                        status: statuscode.success,
-                        content: {
-                            result
-                        }
-                    }
-                }
-                if (category != null) {
-                    const result = await Book.find({ Category: category }).skip(skip).limit(limit);
-                    return {
-                        status: statuscode.success,
-                        content: {
-                            result
-                        }
-                    }
-                }
-                return {
-                    status: statuscode.success,
-                    content: {
-                        result
-                    }
-                }
-            }
-        } catch (error) {
-            return {
-                status: statuscode.catchErr,
-                content: {
-                    message: msg.catchErr
-                }
-            }
-        }
 
+const book = new BookService();
+
+export const createbook = async(req : Request , res : Response) => {
+    try {
+        const uerId = (req as JwtPayload).decoded.id;
+        const user = await User.findById(uerId);
+        if (user?.Type == "user" ){
+            return  res.status(500).json({
+                messae : msg.bookauth
+            });
+        }  
+        const {Title ,Author ,Category  , ISBN  ,Description,Price  } = req.body;
+        const ret = await book.createbook(Title ,Author ,Category  , ISBN  ,Description,Price );
+        return res.status((ret as { status: number, content: object }).status).json({
+            "response": (ret as { status: number, content: object }).content
+        })
+    } catch (error) {
+        return res.json({
+            error
+        })
     }
+}
 
-
-    async createbook(Title: string, Author: String, Category: String, ISBN: String, Description: String, Price: number) {
-        try {
-            const result = {
-                Title: Title,
-                Author: Author,
-                Category: Category,
-                ISBN: ISBN,
-                Description: Description,
-                Price: Price
-            }
-            const r = await Book.create(result);
-            return {
-                status: statuscode.success,
-                content: {
-                    message: `Book is created ${msg.sucess} `,
-                    r
-                }
-            }
-        } catch (error) {
-            return {
-                status: statuscode.catchErr,
-                content: {
-                    message: msg.catchErr
-                }
-            }
+export const getbook = async (req: Request, res: Response) => {
+    const { page, pagesize, searchedCategory ,author,category} = req.query;
+    try {
+        if (!page && !pagesize) {
+            const ret = await book.getbook((page as string), (pagesize as string), (searchedCategory as string),(author as string),(category as string));
+            return res.status((ret as { status: number, content: object }).status).json({
+                "response": (ret as { status: number, content: object }).content
+            })
+        } else {
+            const ret = await book.getbook((page as string), (pagesize as string), (searchedCategory as string),(author as string),(category as string));
+            return res.status((ret as { status: number, content: object }).status).json({
+                "response": (ret as { status: number, content: object }).content
+            })
         }
-
+    } catch (error) {
+        console.log(error);
     }
+}
 
-    async deletebook(id: string) {
-        try {
-            const result = await Book.findByIdAndDelete({ _id: id });
-            return {
-                status: statuscode.success,
-                content: {
-                    result,
-                    message: `Thi book is deleted ${msg.sucess}`
-                }
+
+export const deletebook = async (req :Request , res : Response)=>{
+    try {
+        const uerId = (req as JwtPayload).decoded.id;
+        const user = await User.findById(uerId);
+        if (user?.Type == "user"){
+            return  res.status(500).json({
+                messae : msg.bookauth
+            });
+        }  
+        const {id} =req.body;
+        if (user?.Type == "author") {
+            const deletebook = await Book.findById(id);
+            if(deletebook?.Author == user.Name){
+                const ret = await book.deletebook(id);
+                return res.status((ret as { status: number, content: object }).status).json({
+                    "response": (ret as { status: number, content: object }).content
+                })
             }
-        } catch (error) {
-            return {
-                status: statuscode.catchErr,
-                content: {
-                    message: msg.catchErr
-                }
+            else{
+                return  res.status(500).json({
+                    messae : msg.authorbook
+                });
             }
         }
+        const ret = await book.deletebook(id);
+        return res.status((ret as { status: number, content: object }).status).json({
+            "response": (ret as { status: number, content: object }).content
+        })
+    } catch (error) {
+        return res.json({
+            error
+        })
     }
+}
 
-    async updatebook(id: string, data: bookInterface) {
-        try {
-            const book = await Book.findById(id);
-            const Title = data.Title ? data.Title : book?.Title;
-            const Author = data.Author ? data.Author : book?.Author;
-            const Category = data.Category ? data.Category : book?.Category;
-            const Description = data.Description ? data.Description : book?.Description;
-            const ISBN = data.ISBN ? data.ISBN : book?.ISBN;
-            const Price = data.Price ? data.Price : book?.Price;
 
-            const result = await Book.findByIdAndUpdate({ _id: id }, { $set: { Title: Title, Author: Author, Category: Category, ISBN: ISBN, Description: Description, Price: Price } });
-            return {
-                status: statuscode.success,
-                content: {
-                    message: `book is updated ${msg.sucess}`,
-                    result
-                }
+export const updatebook = async (req :Request , res : Response)=>{
+    try {
+        const uerId = (req as JwtPayload).decoded.id;
+        const user = await User.findById(uerId);
+        if (user?.Type == "user"){
+            return  res.status(500).json({
+                messae : msg.categoryAdmin
+            });
+        } 
+        const {id ,data } =req.body;
+        if (user?.Type == "author") {
+            const updatebook = await Book.findById(id);
+            if(updatebook?.Author == user.Name){
+                const ret = await book.updatebook(id,data);
+                return res.status((ret as { status: number, content: object }).status).json({
+                    "response": (ret as { status: number, content: object }).content
+                })
             }
-        } catch (error) {
-            return {
-                status: statuscode.catchErr,
-                content: {
-                    message: msg.catchErr
-                }
+            else{
+                return  res.status(500).json({
+                    messae : msg.authorbook
+                });
             }
-        }
+        } 
+        const ret = await book.updatebook(id,data);
+        return res.status((ret as { status: number, content: object }).status).json({
+            "response": (ret as { status: number, content: object }).content
+        })
+    } catch (error) {
+        return res.json({
+            error
+        })
     }
 }
