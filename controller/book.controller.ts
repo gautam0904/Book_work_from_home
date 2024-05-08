@@ -30,15 +30,15 @@ export const createbook = async(req : Request , res : Response) => {
 }
 
 export const getbook = async (req: Request, res: Response) => {
-    const { page, pagesize, searchedCategory, author,category} = req.query;
+    const { page, pagesize, searchedBook, author,category} = req.query;
     try {
         if (!page && !pagesize) {
-            const ret = await book.getbook();
+            const ret = await book.getbook((page as string), (pagesize as string), (searchedBook as string),(author as string),(category as string));
             return res.status((ret as { status: number, content: object }).status).json({
                 "response": (ret as { status: number, content: object }).content
             })
         } else {
-            const ret = await book.getbook((page as string), (pagesize as string), (searchedCategory as string),(author as string),(category as string));
+            const ret = await book.getbook((page as string), (pagesize as string), (searchedBook as string),(author as string),(category as string));
             return res.status((ret as { status: number, content: object }).status).json({
                 "response": (ret as { status: number, content: object }).content
             })
