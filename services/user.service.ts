@@ -1,7 +1,8 @@
 import { User } from '../model/user.model';
-import { msg, statuscode } from '../constant/return';
+import { msg } from "../constant/message";
+import {statuscode} from "../constant/status"
 import jwt from 'jsonwebtoken';
-import { JWT_SECRET } from '../constant/constat';
+
 
 export class UserService {
     async createuser(name: string, email: string, password: string, type: string) {
@@ -61,7 +62,7 @@ export class UserService {
             }
             const accesstoken = await jwt.sign({
                 id: user._id
-            },JWT_SECRET,{expiresIn: 86400});
+            },(process.env.JWT_SECRET as jwt.Secret),{expiresIn: 86400});
             return {
                 status : statuscode.success,
                 content : {
