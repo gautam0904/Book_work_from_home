@@ -1,11 +1,12 @@
 import { msg } from "../constant/message";
 import { statuscode } from "../constant/status";
 import { bookInterface } from "../interface/model.interface";
+import { createbookInterface } from "../interface/request.interface";
 import { Book } from "../model/book.model"
 import { User } from "../model/user.model";
 
 export class BookService {
-    async getbook(requestQuery) {
+    async getbook(requestQuery : any) {
         try {
             if (!requestQuery.page && !requestQuery.pagesize) {
                 if (requestQuery.author != null) {
@@ -77,7 +78,7 @@ export class BookService {
     }
 
 
-    async createbook(requestBody, userId) {
+    async createbook(requestBody : createbookInterface , userId :string) {
         try {
             const user = await User.findById(userId);
             if (user?.Type === "user") {
@@ -115,7 +116,7 @@ export class BookService {
 
     }
 
-    async deletebook(id, userId): Promise<{ status: number, content: object }> {
+    async deletebook(id : string, userId :string): Promise<{ status: number, content: object }> {
         try {
             const user = await User.findById(userId);
             if (user?.Type === "user") {
@@ -163,7 +164,7 @@ export class BookService {
         }
     }
 
-    async updatebook(userId: string, requestBody, requestQuery) {
+    async updatebook(userId: string, requestBody : createbookInterface, requestQuery :any) {
         try {
             const book = await Book.findById(requestQuery.id);
             const user = await User.findById(userId);
@@ -180,18 +181,18 @@ export class BookService {
                 if (updatebook?.Author != user.Name) {
                     return {
                         status: statuscode.catchErr,
-                        content: {
+                        content:{
                             message: msg.authorbook
                         }
                     }
                 }
                 
-                const Title = requestBody.data.Title ? requestBody.data.Title : book?.Title;
-                const Author = requestBody.data.Author ? requestBody.data.Author : book?.Author;
-                const Category = requestBody.data.Category ? requestBody.data.Category : book?.Category;
-                const Description = requestBody.data.Description ? requestBody.data.Description : book?.Description;
-                const ISBN = requestBody.data.ISBN ? requestBody.data.ISBN : book?.ISBN;
-                const Price = requestBody.data.Price ? requestBody.data.Price : book?.Price;
+                const Title = requestBody.Title ? requestBody.Title : book?.Title;
+                const Author = requestBody.Author ? requestBody.Author : book?.Author;
+                const Category = requestBody.Category ? requestBody.Category : book?.Category;
+                const Description = requestBody.Description ? requestBody.Description : book?.Description;
+                const ISBN = requestBody.ISBN ? requestBody.ISBN : book?.ISBN;
+                const Price = requestBody.Price ? requestBody.Price : book?.Price;
 
                 const result = await Book.findByIdAndUpdate({ _id: requestQuery.id }, { $set: { Title: Title, Author: Author, Category: Category, ISBN: ISBN, Description: Description, Price: Price } });
                 return {
@@ -202,12 +203,12 @@ export class BookService {
                     }
                 }
             }
-            const Title = requestBody.data.Title ? requestBody.data.Title : book?.Title;
-            const Author = requestBody.data.Author ? requestBody.data.Author : book?.Author;
-            const Category = requestBody.data.Category ? requestBody.data.Category : book?.Category;
-            const Description = requestBody.data.Description ? requestBody.data.Description : book?.Description;
-            const ISBN = requestBody.data.ISBN ? requestBody.data.ISBN : book?.ISBN;
-            const Price = requestBody.data.Price ? requestBody.data.Price : book?.Price;
+            const Title = requestBody.Title ? requestBody.Title : book?.Title;
+            const Author = requestBody.Author ? requestBody.Author : book?.Author;
+            const Category = requestBody.Category ? requestBody.Category : book?.Category;
+            const Description = requestBody.Description ? requestBody.Description : book?.Description;
+            const ISBN = requestBody.ISBN ? requestBody.ISBN : book?.ISBN;
+            const Price = requestBody.Price ? requestBody.Price : book?.Price;
 
             const result = await Book.findByIdAndUpdate({ _id: requestQuery.id }, { $set: { Title: Title, Author: Author, Category: Category, ISBN: ISBN, Description: Description, Price: Price } });
             return {

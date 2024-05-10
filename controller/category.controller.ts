@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { CategoryService } from "../services/category.service";
 import { JwtPayload } from "jsonwebtoken";
+import { getcategoryInterface } from "../interface/request.interface";
 
 
 
@@ -24,7 +25,7 @@ export const createCategory = async (req: Request, res: Response) => {
 export const getcategory = async (req: Request, res: Response) => {
     const requestQuery = req.query;
     try {
-        const categories = await catrgory.getcategory(requestQuery);
+        const categories = await catrgory.getcategory(requestQuery );
         return res.status(categories.status).json({
             "response": categories.content
         })
@@ -55,7 +56,8 @@ export const updatecategory = async (req: Request, res: Response) => {
     try {
         const userId = (req as JwtPayload).decoded.id;
         const requestBody = req.body;
-        const updatedCategory = await catrgory.updatecategory(userId, requestBody);
+        const id = req.query.id as string;
+        const updatedCategory = await catrgory.updatecategory( id ,userId, requestBody);
         return res.status(updatedCategory.status).json({
             "response": updatedCategory.content
         })

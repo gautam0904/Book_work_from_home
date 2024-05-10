@@ -12,8 +12,7 @@ declare global {
 }
 
 export const authmiddle = async (req: Request, res: Response, next: NextFunction) => {
-    const AccessToken = req.headers.access_token
-
+    const AccessToken = req.headers.authorization
     if (!AccessToken) {
         return res.status(401).json({
             message: "You have not token"

@@ -2,11 +2,12 @@ import { Request, Response } from "express";
 import { AuthorService } from "../services/author.service";
 import { JwtPayload } from "jsonwebtoken";
 import {statuscode} from  "../constant/status";
+import { createAuthorInterface, getauthorInterface } from "../interface/request.interface";
 
 const author = new AuthorService();
 
 export const getauthor = async (req: Request, res: Response) => {
-    const requestQuery = req.query;
+    const requestQuery  = req.query ;
     try {
         const authors = await author.getauthor(requestQuery);
             return res.status(authors.status).json({
@@ -22,7 +23,7 @@ export const getauthor = async (req: Request, res: Response) => {
 export const createAuthor = async(req : Request , res : Response) =>{
     try {
         const userId = (req as JwtPayload).decoded.id;
-        const requestBody = req.body
+        const requestBody :createAuthorInterface = req.body
         const ceratedauthor = await author.addauthor(userId , requestBody);
         return res.status(ceratedauthor.status).json({
             "response": ceratedauthor.content
@@ -37,7 +38,7 @@ export const createAuthor = async(req : Request , res : Response) =>{
 export const deleteauthor = async (req :Request , res : Response)=>{
     try {
         const uerId = (req as JwtPayload).decoded.id;
-        const {id} =req.query;
+        const id =req.query.id as string;
         const deletedAuthor = await author.deleteauthor(uerId ,id);
         return res.status(deletedAuthor.status).json({
             "response": deletedAuthor.content
@@ -53,9 +54,9 @@ export const deleteauthor = async (req :Request , res : Response)=>{
 export const updateauthor = async (req :Request , res : Response)=>{
     try {
         const userId = (req as JwtPayload).decoded.id;
-        const requestBody =req.body;
-        const authorId = req.query;
-        const updatedAuthor = await author.updateauthor(authorId,requestBody,userId);
+        const requestBody : createAuthorInterface =req.body;
+        const authorId : string = req.query.id as string;
+        const updatedAuthor = await author.updateauthor((authorId as string),requestBody,userId);
         return res.status(updatedAuthor.status).json({
             "response": updatedAuthor.content
         })

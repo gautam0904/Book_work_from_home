@@ -36,7 +36,7 @@ export const getbook = async (req: Request, res: Response) => {
 export const deletebook = async (req: Request, res: Response) => {
     try {
         const userId = (req as JwtPayload).decoded.id;
-        const id = req.query;
+        const id = req.query.id as string;
         const deletedBook = await book.deletebook(id ,userId);
         return res.status(deletedBook.status).json({
             "response": deletedBook.content

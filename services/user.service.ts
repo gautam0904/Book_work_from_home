@@ -2,17 +2,18 @@ import { User } from '../model/user.model';
 import { msg } from "../constant/message";
 import {statuscode} from "../constant/status"
 import jwt from 'jsonwebtoken';
+import { createuserInterface, loginuserInterface } from '../interface/request.interface';
 
 
 export class UserService {
-    async createuser(signupRequestBody) {
+    async createuser(signupRequestBody : createuserInterface) {
         try {
             const existinguser = await User.find({ Email: signupRequestBody.email });
             if (existinguser.length != 0) {
                 return {
                     status: statuscode.existalready,
                     content: {
-                        message: `${signupRequestBody.name} is ${msg.existalready}`
+                        message: ` ${msg.existalready(signupRequestBody.name)}`
                     }
                 }
             }
@@ -25,7 +26,7 @@ export class UserService {
             return {
                 status: statuscode.success,
                 content: {
-                    message: `User ${name} created ${msg.sucess}`,
+                    message: `User ${signupRequestBody.name} created ${msg.sucess}`,
                     result
                 }
             }
@@ -41,7 +42,7 @@ export class UserService {
 
     }
 
-    async login(loginequestBody){
+    async login(loginequestBody : loginuserInterface){
         try {
             const user = await User.findOne({Email : loginequestBody.email});
             if (!user) {

@@ -1,11 +1,12 @@
 import { msg } from "../constant/message";
-import { statuscode } from "../constant/status"
+import { statuscode } from "../constant/status";
 import { categorInterface } from "../interface/model.interface";
+import { createcategoryInterface } from "../interface/request.interface";
 import { Category } from "../model/category.model"
 import { User } from "../model/user.model";
 
 export class CategoryService {
-    async getcategory(requestQuery) {
+    async getcategory(requestQuery : any) {
         try {
             if (!requestQuery.page && !requestQuery.pagesize) {
                 const result = await Category.find();
@@ -21,7 +22,7 @@ export class CategoryService {
             const limit = parseInt(requestQuery.pagesize) || 10;
             const skip = (pageNUmber - 1) * limit;
 
-            const result = await Category.find({ category: requestQuery.searchedCategory }).skip(skip).limit(limit);
+            const result = await Category.find({ Categoryy: requestQuery.searchedCategory }).skip(skip).limit(limit);
 
             return {
                 status: statuscode.success,
@@ -41,7 +42,7 @@ export class CategoryService {
 }
 
 
-    async createCAtegory(userId ,requestBody) {
+    async createCAtegory(userId : string ,requestBody : createcategoryInterface ) {
     try {
         const user = await User.findById(userId);
         if (user?.Type != "admin") {
@@ -52,16 +53,15 @@ export class CategoryService {
                 }
             }
         }
-        const result = {
+        const result  = await Category.create({
             Book: requestBody.Book,
-            Categoryy: requestBody.categories
-        }
-        const r = await Category.create(result);
+            Categoryy: requestBody.Categories
+        });
         return {
             status: statuscode.success,
             content: {
                 message: `category is created ${msg.sucess} `,
-                r
+                result
             }
         }
     } catch (error) {
@@ -75,7 +75,7 @@ export class CategoryService {
 
 }
 
-    async deletecategory(userId, id: string) {
+    async deletecategory(userId : string, id: string) {
     try {
         const user = await User.findById(userId);
         if (user?.Type != "admin") {
@@ -103,7 +103,7 @@ export class CategoryService {
     }
 }
 
-    async updatecategory(uerId: string, requestBody) {
+    async updatecategory( id : string, uerId: string, requestBody : createcategoryInterface) {
     try {
         const user = await User.findById(uerId);
         if (user?.Type != "admin") {
@@ -114,10 +114,10 @@ export class CategoryService {
                 }
             }
         }
-        const category = await Category.findById(requestBody.id);
-        const Categoryitem = requestBody.data.Category ? requestBody.data.Category : category?.Categoryy
+        const category = await Category.findById(id);
+        const Categoryitem = requestBody.Categories ? requestBody.Categories : category?.Categoryy
 
-        const result = await Category.findByIdAndUpdate({ _id: requestBody.id }, { $set: { Categoryy: Categoryitem } });
+        const result = await Category.findByIdAndUpdate({ _id: id }, { $set: { Categoryy: Categoryitem } });
         return {
             status: statuscode.success,
             content: {

@@ -1,11 +1,13 @@
+import QueryString from "qs";
 import { msg } from "../constant/message";
 import { statuscode } from "../constant/status"
 import { authorInterface } from "../interface/model.interface"
+import { createAuthorInterface } from "../interface/request.interface";
 import { Author } from "../model/author.model"
 import { User } from "../model/user.model";
 
 export class AuthorService {
-    async getauthor(requestQuery) {
+    async getauthor(requestQuery : QueryString.ParsedQs) {
         try {
             if (!requestQuery.page && !requestQuery.pagesize) {
                 const result = await Author.find();
@@ -42,7 +44,7 @@ export class AuthorService {
     }
 
 
-    async addauthor(userId: string, requestBody) {
+    async addauthor(userId: string, requestBody : createAuthorInterface) {
         try {
             const user = await User.findById(userId);
             if (user?.Type != "admin") {
@@ -53,7 +55,7 @@ export class AuthorService {
                     }
                 }
             }
-            const result = {
+            const result : authorInterface = {
                 Name: requestBody.Name,
                 Biography: requestBody.Biography,
                 Nationality: requestBody.Nationality
@@ -76,7 +78,7 @@ export class AuthorService {
 
     }
 
-    async deleteauthor(userId: string, id) {
+    async deleteauthor(userId: string, id : string) {
         try {
             const user = await User.findById(userId);
             if (user?.Type != "admin") {
@@ -104,7 +106,7 @@ export class AuthorService {
         }
     }
 
-    async updateauthor(authorId,requestBody,userId) {
+    async updateauthor(authorId : string,requestBody : createAuthorInterface,userId : string) {
         try {
             const user = await User.findById(userId);
             if (user?.Type != "admin") {
