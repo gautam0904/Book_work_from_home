@@ -104,7 +104,7 @@ export class AuthorService {
         }
     }
 
-    async updateauthor(requestBody,userId) {
+    async updateauthor(authorId,requestBody,userId) {
         try {
             const user = await User.findById(userId);
             if (user?.Type != "admin") {
@@ -115,12 +115,7 @@ export class AuthorService {
                     }
                 }
             }
-            const author = await Author.findById(requestBody.id);
-            const Name = requestBody.data.Name ? requestBody.data.Name : author?.Name;
-            const Biography = requestBody.data.Biography ? requestBody.data.Biography : author?.Biography;
-            const Nationality = requestBody.data.Nationality ? requestBody.data.Nationality : author?.Nationality;
-
-            const result = await Author.findByIdAndUpdate({ _id: requestBody.id }, { $set: { Name: Name, Biography: Biography, Nationality: Nationality } });
+            const result = await Author.findByIdAndUpdate({ _id: authorId}, { $set: { Name: requestBody.Name, Biography: requestBody.Biography, Nationality: requestBody.Nationality } });
             return {
                 status: statuscode.success,
                 content: {

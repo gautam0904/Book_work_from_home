@@ -1,10 +1,6 @@
 import { Request, Response } from "express";
-import { msg } from "../constant/message";
 import { BookService } from "../services/book.service";
-import { Book } from "../model/book.model";
 import { JwtPayload } from "jsonwebtoken";
-import { User } from "../model/user.model";
-
 
 const book = new BookService();
 
@@ -13,9 +9,9 @@ export const createbook = async (req: Request, res: Response) => {
         const userId = (req as JwtPayload).decoded.id;
 
         const requestBody = req.body;
-        const ret = await book.createbook(requestBody, userId);
-        return res.status(ret.status).json({
-            "response": ret.content
+        const createdBook = await book.createbook(requestBody, userId);
+        return res.status(createdBook.status).json({
+            "response": createdBook.content
         })
     } catch (error) {
         return res.json({
@@ -27,9 +23,9 @@ export const createbook = async (req: Request, res: Response) => {
 export const getbook = async (req: Request, res: Response) => {
     const requestQuery = req.query;
     try {
-        const ret = await book.getbook(requestQuery);
-        return res.status(ret.status).json({
-            "response": ret.content
+        const books = await book.getbook(requestQuery);
+        return res.status(books.status).json({
+            "response": books.content
         })
     } catch (error) {
         console.log(error);
@@ -41,9 +37,9 @@ export const deletebook = async (req: Request, res: Response) => {
     try {
         const userId = (req as JwtPayload).decoded.id;
         const id = req.query;
-        const ret = await book.deletebook(id ,userId);
-        return res.status(ret.status).json({
-            "response": ret.content
+        const deletedBook = await book.deletebook(id ,userId);
+        return res.status(deletedBook.status).json({
+            "response": deletedBook.content
         })
     } catch (error) {
         return res.json({
@@ -58,9 +54,9 @@ export const updatebook = async (req: Request, res: Response) => {
         const userId = (req as JwtPayload).decoded.id;
         const requestQuery =  req.query;
         const requestBody = req.body;
-        const ret = await book.updatebook(userId, requestBody ,requestQuery );
-        return res.status(ret.status).json({
-            "response": ret.content
+        const updatedBook = await book.updatebook(userId, requestBody ,requestQuery );
+        return res.status(updatedBook.status).json({
+            "response": updatedBook.content
         })
     } catch (error) {
         return res.json({

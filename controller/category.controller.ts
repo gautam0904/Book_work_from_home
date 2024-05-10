@@ -1,23 +1,16 @@
-import {Request,Response} from "express";
-import { msg } from "../constant/message";
+import { Request, Response } from "express";
 import { CategoryService } from "../services/category.service";
 import { JwtPayload } from "jsonwebtoken";
-import { User } from "../model/user.model";
+
 
 
 const catrgory = new CategoryService();
 
-export const createCategory = async(req : Request , res : Response) => {
+export const createCategory = async (req: Request, res: Response) => {
     try {
         const uerId = (req as JwtPayload).decoded.id;
-        const user = await User.findById(uerId);
-        if (user?.Type != "admin"){
-            return  res.status(500).json({
-                messae : msg.categoryAdmin
-            });
-        }  
-        const {Book,Category } = req.body;
-        const ret = await catrgory.createCAtegory(Book,Category);
+        const requestBody = req.body;
+        const ret = await catrgory.createCAtegory(uerId,requestBody);
         return res.status(ret.status).json({
             "response": ret.content
         })
@@ -29,38 +22,26 @@ export const createCategory = async(req : Request , res : Response) => {
 }
 
 export const getcategory = async (req: Request, res: Response) => {
-    const { page, pagesize, searchedCategory } = req.query;
+    const requestQuery = req.query;
     try {
-        if (!page && !pagesize) {
-            const ret = await catrgory.getcategory();
-            return res.status(ret.status).json({
-                "response":ret.content
-            })
-        } else {
-            const ret = await catrgory.getcategory((page as string), (pagesize as string), (searchedCategory as string));
-            return res.status(ret.status).json({
-                "response": ret.content
-            })
-        }
+        const categories = await catrgory.getcategory(requestQuery);
+        return res.status(categories.status).json({
+            "response": categories.content
+        })
+
     } catch (error) {
-        console.log(error);
+        error
     }
 }
 
 
-export const deletecategory = async (req :Request , res : Response)=>{
+export const deletecategory = async (req: Request, res: Response) => {
     try {
         const uerId = (req as JwtPayload).decoded.id;
-        const user = await User.findById(uerId);
-        if (user?.Type != "admin"){
-            return  res.status(500).json({
-                messae : msg.categoryAdmin
-            });
-        }  
-        const {id} =req.body;
-        const ret = await catrgory.deletecategory(id);
-        return res.status(ret.status).json({
-            "response": ret.content
+        const { id } = req.body;
+        const deletedcategory = await catrgory.deletecategory(uerId, id);
+        return res.status(deletedcategory.status).json({
+            "response": deletedcategory.content
         })
     } catch (error) {
         return res.json({
@@ -70,19 +51,13 @@ export const deletecategory = async (req :Request , res : Response)=>{
 }
 
 
-export const updatecategory = async (req :Request , res : Response)=>{
+export const updatecategory = async (req: Request, res: Response) => {
     try {
-        const uerId = (req as JwtPayload).decoded.id;
-        const user = await User.findById(uerId);
-        if (user?.Type != "admin"){
-            return  res.status(500).json({
-                messae : msg.categoryAdmin
-            });
-        }  
-        const {id ,data } =req.body;
-        const ret = await catrgory.updatecategory(id,data);
-        return res.status(ret.status).json({
-            "response": ret.content
+        const userId = (req as JwtPayload).decoded.id;
+        const requestBody = req.body;
+        const updatedCategory = await catrgory.updatecategory(userId, requestBody);
+        return res.status(updatedCategory.status).json({
+            "response": updatedCategory.content
         })
     } catch (error) {
         return res.json({

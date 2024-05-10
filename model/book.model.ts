@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { bookInterface } from "../interface/model.interface";
 
-const userSchema : mongoose.Schema<bookInterface> = new mongoose.Schema({
+const bookSchema : mongoose.Schema<bookInterface> = new mongoose.Schema({
     Title : {
         type : String ,
         required : [true , "Title is requried" ]
@@ -11,7 +11,8 @@ const userSchema : mongoose.Schema<bookInterface> = new mongoose.Schema({
         required : [true ,"Author is required"]
     },
     Category : {
-        type : String,
+        type : mongoose.Schema.Types.ObjectId,
+        ref : 'Category',
         required : [true , "Category is required"]
     },
     ISBN : {
@@ -28,4 +29,4 @@ const userSchema : mongoose.Schema<bookInterface> = new mongoose.Schema({
     }
 });
 
-export const Book = mongoose.model("Book" , userSchema);
+export const Book = mongoose.model("Book" , bookSchema);

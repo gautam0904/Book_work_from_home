@@ -80,7 +80,7 @@ export class BookService {
     async createbook(requestBody, userId) {
         try {
             const user = await User.findById(userId);
-            if (user?.Type == "user") {
+            if (user?.Type === "user") {
                 return {
                     status: statuscode.catchErr,
                     content: {
@@ -118,7 +118,7 @@ export class BookService {
     async deletebook(id, userId): Promise<{ status: number, content: object }> {
         try {
             const user = await User.findById(userId);
-            if (user?.Type == "user") {
+            if (user?.Type === "user") {
                 return {
                     status: statuscode.catchErr,
                     content: {
@@ -126,7 +126,7 @@ export class BookService {
                     }
                 }
             }
-            if (user?.Type == "author") {
+            if (user?.Type === "author") {
                 const deletebook = await Book.findById(id);
                 if (deletebook?.Author != user.Name) {
                     return {
@@ -165,8 +165,9 @@ export class BookService {
 
     async updatebook(userId: string, requestBody, requestQuery) {
         try {
+            const book = await Book.findById(requestQuery.id);
             const user = await User.findById(userId);
-            if (user?.Type == "user") {
+            if (user?.Type === "user") {
                 return {
                     status: statuscode.catchErr,
                     content: {
@@ -174,7 +175,7 @@ export class BookService {
                     }
                 }
             }
-            if (user?.Type == "author") {
+            if (user?.Type === "author") {
                 const updatebook = await Book.findById(requestQuery.id);
                 if (updatebook?.Author != user.Name) {
                     return {
@@ -184,7 +185,7 @@ export class BookService {
                         }
                     }
                 }
-                const book = await Book.findById(requestQuery.id);
+                
                 const Title = requestBody.data.Title ? requestBody.data.Title : book?.Title;
                 const Author = requestBody.data.Author ? requestBody.data.Author : book?.Author;
                 const Category = requestBody.data.Category ? requestBody.data.Category : book?.Category;
@@ -201,7 +202,6 @@ export class BookService {
                     }
                 }
             }
-            const book = await Book.findById(requestQuery.id);
             const Title = requestBody.data.Title ? requestBody.data.Title : book?.Title;
             const Author = requestBody.data.Author ? requestBody.data.Author : book?.Author;
             const Category = requestBody.data.Category ? requestBody.data.Category : book?.Category;

@@ -5,27 +5,27 @@ import jwt from 'jsonwebtoken';
 
 
 export class UserService {
-    async createuser(name: string, email: string, password: string, type: string) {
+    async createuser(signupRequestBody) {
         try {
-            const existinguser = await User.find({ Email: email });
+            const existinguser = await User.find({ Email: signupRequestBody.email });
             if (existinguser.length != 0) {
                 return {
                     status: statuscode.existalready,
                     content: {
-                        message: `${name} is ${msg.existalready}`
+                        message: `${signupRequestBody.name} is ${msg.existalready}`
                     }
                 }
             }
             const result = await User.create({
-                Name: name,
-                Email: email,
-                Password: password,
-                Type: type
+                Name: signupRequestBody.name,
+                Email: signupRequestBody.email,
+                Password: signupRequestBody.password,
+                Type: signupRequestBody.type
             });
             return {
                 status: statuscode.success,
                 content: {
-                    message: `User ${name} created successfully`,
+                    message: `User ${name} created ${msg.sucess}`,
                     result
                 }
             }
@@ -41,9 +41,9 @@ export class UserService {
 
     }
 
-    async login(email : string , password : string){
+    async login(loginequestBody){
         try {
-            const user = await User.findOne({Email : email});
+            const user = await User.findOne({Email : loginequestBody.email});
             if (!user) {
                 return{
                     status : statuscode.notfound,
@@ -52,7 +52,7 @@ export class UserService {
                     }
                 }
             }
-            if(password != user.Password){
+            if(loginequestBody.password != user.Password){
                 return{
                     status : statuscode.notfound,
                     content : {
@@ -66,7 +66,7 @@ export class UserService {
             return {
                 status : statuscode.success,
                 content : {
-                    accesstoken : accesstoken
+                   accesstoken
                 }
             }
         } catch (error) {
