@@ -1,72 +1,55 @@
+import mongoose, { ObjectId } from "mongoose";
 import { msg } from "../constant/message";
 import { statuscode } from "../constant/status";
-import { bookInterface } from "../interface/model.interface";
 import { createbookInterface } from "../interface/request.interface";
 import { Book } from "../model/book.model"
 import { User } from "../model/user.model";
+import { customError } from "../utiles/error.handller";
 
 export class BookService {
-    async getbook(requestQuery : any) {
+    async getbook(requestQuery: any) {
         try {
-            if (!requestQuery.page && !requestQuery.pagesize) {
-                if (requestQuery.author != null) {
-                    const result = await Book.find({ Author: requestQuery.author });
-                    return {
-                        status: statuscode.success,
-                        content: {
-                            result
-                        }
+            const pipeline: any = [];
+
+            if (requestQuery.category != null) {
+                pipeline.push({
+                    $match: {
+                        Category: new mongoose.Schema.Types.ObjectId(requestQuery.category)
                     }
-                }
-                if (requestQuery.category != null) {
-                    const result = await Book.find({ Category: requestQuery.category });
-                    return {
-                        status: statuscode.success,
-                        content: {
-                            result
-                        }
+                },)
+            } else if (requestQuery.author != null) {
+                pipeline.push({
+                    $match: {
+                        Author: new mongoose.Schema.Types.ObjectId(requestQuery.author)
                     }
-                }
-                const result = await Book.find();
-                return {
-                    status: statuscode.success,
-                    content: {
-                        result
+                },)
+            } else if (requestQuery.searchedBook != null) {
+                pipeline.push({
+                    $match: {
+                        Title: requestQuery.searchedBook
                     }
-                }
-            }
-            else {
+                },)
+            } else if (requestQuery.page != undefined && requestQuery.pagesize != undefined) {
                 const pageNUmber = parseInt((requestQuery.page as string)) || 1;
                 const limit = parseInt((requestQuery.pagesize as string)) || 10;
                 const skip = (pageNUmber - 1) * limit;
-
-                const result = await Book.find({ Title: requestQuery.searchedBook }).skip(skip).limit(limit);
-                if (requestQuery.author != null) {
-                    const result = await Book.find({ Author: requestQuery.author });
-                    return {
-                        status: statuscode.success,
-                        content: {
-                            result
-                        }
-                    }
-                }
-                if (requestQuery.category != null) {
-                    const result = await Book.find({ Category: requestQuery.category });
-                    return {
-                        status: statuscode.success,
-                        content: {
-                            result
-                        }
-                    }
-                }
-                return {
-                    status: statuscode.success,
-                    content: {
-                        result
-                    }
+                pipeline.push({
+                    $skip: skip
+                },
+                    {
+                        $limit: limit
+                    })
+            }
+            const result = await Book.aggregate(pipeline);
+            return {
+                status: statuscode.success,
+                content: {
+                    result
                 }
             }
-        } catch (error) {
+
+        }
+        catch (error) {
             return {
                 status: statuscode.catchErr,
                 content: {
@@ -78,16 +61,11 @@ export class BookService {
     }
 
 
-    async createbook(requestBody : createbookInterface , userId :string) {
+    async createbook(requestBody: createbookInterface, userId: string) {
         try {
             const user = await User.findById(userId);
             if (user?.Type === "user") {
-                return {
-                    status: statuscode.catchErr,
-                    content: {
-                        message: msg.bookauth
-                    }
-                }
+                throw new customError(statuscode.catchErr, msg.bookauth)
             }
             const result = {
                 Title: requestBody.Title,
@@ -116,27 +94,17 @@ export class BookService {
 
     }
 
-    async deletebook(id : string, userId :string): Promise<{ status: number, content: object }> {
+    async deletebook(id: string, userId: string): Promise<{ status: number, content: object }> {
         try {
             const user = await User.findById(userId);
             if (user?.Type === "user") {
-                return {
-                    status: statuscode.catchErr,
-                    content: {
-                        message: msg.bookauth
-                    }
-                }
+                throw new customError(statuscode.catchErr, msg.bookauth)
             }
             if (user?.Type === "author") {
                 const deletebook = await Book.findById(id);
-                if (deletebook?.Author != user.Name) {
-                    return {
-                        status: statuscode.catchErr,
-                        content: {
-                            message: msg.authorbook
-                        }
-                    }
-                }
+                // if (deletebook?.Author != user.Name) {
+                //     throw new customError(statuscode.catchErr , msg.authorbook)
+                // }
                 const result = await Book.findByIdAndDelete({ _id: id });
                 return {
                     status: statuscode.success,
@@ -164,29 +132,19 @@ export class BookService {
         }
     }
 
-    async updatebook(userId: string, requestBody : createbookInterface, requestQuery :any) {
+    async updatebook(userId: string, requestBody: createbookInterface, requestQuery: any) {
         try {
             const book = await Book.findById(requestQuery.id);
             const user = await User.findById(userId);
             if (user?.Type === "user") {
-                return {
-                    status: statuscode.catchErr,
-                    content: {
-                        message: msg.categoryAdmin
-                    }
-                }
+                throw new customError(statuscode.catchErr, msg.categoryAdmin)
             }
             if (user?.Type === "author") {
                 const updatebook = await Book.findById(requestQuery.id);
-                if (updatebook?.Author != user.Name) {
-                    return {
-                        status: statuscode.catchErr,
-                        content:{
-                            message: msg.authorbook
-                        }
-                    }
-                }
-                
+                // if (updatebook?.Author != user.Name) {
+                //     throw new customError (statuscode.catchErr ,msg.authorbook)
+                // }
+
                 const Title = requestBody.Title ? requestBody.Title : book?.Title;
                 const Author = requestBody.Author ? requestBody.Author : book?.Author;
                 const Category = requestBody.Category ? requestBody.Category : book?.Category;
@@ -217,8 +175,8 @@ export class BookService {
                     message: `book is updated ${msg.sucess}`,
                     result
                 }
-            } 
-        }catch (error) {
+            }
+        } catch (error) {
             return {
                 status: statuscode.catchErr,
                 content: {

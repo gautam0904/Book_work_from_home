@@ -12,9 +12,7 @@ export const createCategory = async (req: Request, res: Response) => {
         const uerId = (req as JwtPayload).decoded.id;
         const requestBody = req.body;
         const ret = await catrgory.createCAtegory(uerId,requestBody);
-        return res.status(ret.status).json({
-            "response": ret.content
-        })
+        return res.status(ret.status).json(ret.content)
     } catch (error) {
         return res.json({
             error
@@ -26,9 +24,7 @@ export const getcategory = async (req: Request, res: Response) => {
     const requestQuery = req.query;
     try {
         const categories = await catrgory.getcategory(requestQuery );
-        return res.status(categories.status).json({
-            "response": categories.content
-        })
+        return res.status(categories.status).json( categories.content)
 
     } catch (error) {
         error
@@ -41,9 +37,7 @@ export const deletecategory = async (req: Request, res: Response) => {
         const uerId = (req as JwtPayload).decoded.id;
         const { id } = req.body;
         const deletedcategory = await catrgory.deletecategory(uerId, id);
-        return res.status(deletedcategory.status).json({
-            "response": deletedcategory.content
-        })
+        return res.status(deletedcategory.status).json( deletedcategory.content)
     } catch (error) {
         return res.json({
             error
@@ -58,9 +52,7 @@ export const updatecategory = async (req: Request, res: Response) => {
         const requestBody = req.body;
         const id = req.query.id as string;
         const updatedCategory = await catrgory.updatecategory( id ,userId, requestBody);
-        return res.status(updatedCategory.status).json({
-            "response": updatedCategory.content
-        })
+        return res.status(updatedCategory.status).json(updatedCategory.content)
     } catch (error) {
         return res.json({
             error

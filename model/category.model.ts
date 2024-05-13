@@ -2,12 +2,7 @@ import mongoose from "mongoose";
 import { categorInterface } from "../interface/model.interface";
 
 const categorySchema = new mongoose.Schema({
-    Book :{
-        type : mongoose.Schema.Types.ObjectId,
-        ref : 'Book' ,
-        required : true
-    },
-    Categoryy : {
+       Categoryy : {
         type :String,
         required : true
     }

@@ -3,6 +3,7 @@ import { msg } from "../constant/message";
 import {statuscode} from "../constant/status"
 import jwt from 'jsonwebtoken';
 import { createuserInterface, loginuserInterface } from '../interface/request.interface';
+import { customError } from '../utiles/error.handller';
 
 
 export class UserService {
@@ -10,12 +11,7 @@ export class UserService {
         try {
             const existinguser = await User.find({ Email: signupRequestBody.email });
             if (existinguser.length != 0) {
-                return {
-                    status: statuscode.existalready,
-                    content: {
-                        message: ` ${msg.existalready(signupRequestBody.name)}`
-                    }
-                }
+                throw new customError(statuscode.existalready,msg.existalready(signupRequestBody.name));
             }
             const result = await User.create({
                 Name: signupRequestBody.name,
@@ -35,7 +31,7 @@ export class UserService {
             return {
                 status: statuscode.catchErr,
                 content: {
-                    message: msg.catchErr
+                    message:e.message
                 }
             }
         }
@@ -46,20 +42,10 @@ export class UserService {
         try {
             const user = await User.findOne({Email : loginequestBody.email});
             if (!user) {
-                return{
-                    status : statuscode.notfound,
-                    content : {
-                        message : `this user is ${msg.notfound}`
-                    }
-                }
+                throw new customError(statuscode.notfound,`this user is ${msg.notfound}`);
             }
             if(loginequestBody.password != user.Password){
-                return{
-                    status : statuscode.notfound,
-                    content : {
-                        message : `passord  ${msg.notmach}`
-                    }
-                }
+                throw new customError(statuscode.notfound,`passord  ${msg.notmach}`);
             }
             const accesstoken = await jwt.sign({
                 id: user._id

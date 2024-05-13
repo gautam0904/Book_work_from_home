@@ -10,9 +10,7 @@ export const createbook = async (req: Request, res: Response) => {
 
         const requestBody = req.body;
         const createdBook = await book.createbook(requestBody, userId);
-        return res.status(createdBook.status).json({
-            "response": createdBook.content
-        })
+        return res.status(createdBook.status).json(createdBook.content);
     } catch (error) {
         return res.json({
             error
@@ -24,9 +22,7 @@ export const getbook = async (req: Request, res: Response) => {
     const requestQuery = req.query;
     try {
         const books = await book.getbook(requestQuery);
-        return res.status(books.status).json({
-            "response": books.content
-        })
+        return res.status(books.status).json(books.content);
     } catch (error) {
         console.log(error);
     }
@@ -38,9 +34,7 @@ export const deletebook = async (req: Request, res: Response) => {
         const userId = (req as JwtPayload).decoded.id;
         const id = req.query.id as string;
         const deletedBook = await book.deletebook(id ,userId);
-        return res.status(deletedBook.status).json({
-            "response": deletedBook.content
-        })
+        return res.status(deletedBook.status).json(deletedBook.content);
     } catch (error) {
         return res.json({
             error
@@ -55,9 +49,7 @@ export const updatebook = async (req: Request, res: Response) => {
         const requestQuery =  req.query;
         const requestBody = req.body;
         const updatedBook = await book.updatebook(userId, requestBody ,requestQuery );
-        return res.status(updatedBook.status).json({
-            "response": updatedBook.content
-        })
+        return res.status(updatedBook.status).json(updatedBook.content);
     } catch (error) {
         return res.json({
             error

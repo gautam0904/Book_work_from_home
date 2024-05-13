@@ -5,6 +5,7 @@ import { authorInterface } from "../interface/model.interface"
 import { createAuthorInterface } from "../interface/request.interface";
 import { Author } from "../model/author.model"
 import { User } from "../model/user.model";
+import { customError } from "../utiles/error.handller";
 
 export class AuthorService {
     async getauthor(requestQuery : QueryString.ParsedQs) {
@@ -48,23 +49,17 @@ export class AuthorService {
         try {
             const user = await User.findById(userId);
             if (user?.Type != "admin") {
-                return {
-                    status: statuscode.catchErr,
-                    content: {
-                        message: msg.notAdmin('author')
-                    }
-                }
+                throw new customError (statuscode.unauthorized ,msg.notAdmin('author'))
             }
-            const result : authorInterface = {
+            const result :authorInterface = await Author.create({
                 Name: requestBody.Name,
                 Biography: requestBody.Biography,
                 Nationality: requestBody.Nationality
-            }
-            const r = await Author.create(result);
+            });
             return {
                 status: statuscode.success,
                 content: {
-                    r
+                    result
                 }
             }
         } catch (error) {
@@ -82,12 +77,7 @@ export class AuthorService {
         try {
             const user = await User.findById(userId);
             if (user?.Type != "admin") {
-                return {
-                    status: statuscode.catchErr,
-                    content: {
-                        message: msg.notAdmin('author')
-                    }
-                }
+                throw new customError(statuscode.unauthorized , msg.notAdmin('author'));
             }
             const result = await Author.findByIdAndDelete({ _id: id });
             return {
@@ -110,12 +100,7 @@ export class AuthorService {
         try {
             const user = await User.findById(userId);
             if (user?.Type != "admin") {
-                return{
-                    status: statuscode.catchErr,
-                    content: {
-                        message: msg.notAdmin("Author")
-                    }
-                }
+                throw new customError(statuscode.unauthorized , msg.notAdmin('author'));
             }
             const result = await Author.findByIdAndUpdate({ _id: authorId}, { $set: { Name: requestBody.Name, Biography: requestBody.Biography, Nationality: requestBody.Nationality } });
             return {

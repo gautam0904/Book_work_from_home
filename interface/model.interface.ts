@@ -20,7 +20,7 @@ export interface authorInterface {
 
 export interface bookInterface {
     Title : string,
-    Author : string ,
+    Author : mongoose.Schema.Types.ObjectId ,
     Category : mongoose.Schema.Types.ObjectId,
     ISBN :  string,
     Description : string,
